@@ -30,11 +30,15 @@ namespace CarApp
                 Console.WriteLine("0 – Вийти");
 
                 Console.Write("Ваш вибір: ");
-                choice = int.Parse(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out choice))
+                {
+                    Console.WriteLine("Помилка вводу!");
+                    continue;
+                }
 
                 switch (choice)
                 {
-                    case 1: 
+                    case 1:
                         if (cars.Count >= N)
                         {
                             Console.WriteLine("Досягнуто максимум N об’єктів!");
@@ -49,16 +53,22 @@ namespace CarApp
                             Console.Write("Модель: ");
                             string model = Console.ReadLine();
 
-                            Console.Write("Дата випуску (дд.ММ.рррр): ");
+                            Console.Write("Дата випуску (дд.MM.рррр): ");
                             DateTime date = DateTime.Parse(Console.ReadLine());
 
                             Console.Write("Ціна: ");
                             double price = double.Parse(Console.ReadLine());
 
-                            Console.WriteLine("Тип авто (0-Sedan,1-SUV,2-Hatchback,3-Coupe,4-Pickup,5-Van): ");
+                            Console.Write("Тип авто (0-Sedan,1-SUV,2-Hatchback,3-Coupe,4-Pickup,5-Van): ");
                             CarType type = (CarType)int.Parse(Console.ReadLine());
 
-                            cars.Add(new Car(brand, model, date, price, type));
+                            Car car = new Car(brand, model, date, price, type);
+
+                            Console.Write("Колір (Enter для дефолтного): ");
+                            string color = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(color)) car.Color = color;
+
+                            cars.Add(car);
                             Console.WriteLine("Автомобіль додано!");
                         }
                         catch (Exception ex)
@@ -67,7 +77,7 @@ namespace CarApp
                         }
                         break;
 
-                    case 2: 
+                    case 2:
                         if (cars.Count == 0) Console.WriteLine("Список порожній.");
                         else
                         {
@@ -82,7 +92,7 @@ namespace CarApp
                         }
                         break;
 
-                    case 3: 
+                    case 3:
                         Console.Write("Введіть марку для пошуку: ");
                         string search = Console.ReadLine();
                         var found = cars.FindAll(c => c.Brand.Equals(search, StringComparison.OrdinalIgnoreCase));
@@ -91,21 +101,26 @@ namespace CarApp
                         else foreach (var c in found) c.ShowInfo();
                         break;
 
-                    case 4: 
+                    case 4:
                         Console.Write("Введіть номер авто: ");
-                        int idx = int.Parse(Console.ReadLine()) - 1;
-                        if (idx >= 0 && idx < cars.Count)
-                            cars[idx].StartEngine();
+                        int idx;
+                        if (int.TryParse(Console.ReadLine(), out idx) && idx > 0 && idx <= cars.Count)
+                        {
+                            cars[idx - 1].StartEngine();
+                            cars[idx - 1].StopEngine();
+                        }
                         else
+                        {
                             Console.WriteLine("Невірний номер!");
+                        }
                         break;
 
-                    case 5: 
+                    case 5:
                         Console.Write("Введіть номер авто для видалення: ");
-                        int delIdx = int.Parse(Console.ReadLine()) - 1;
-                        if (delIdx >= 0 && delIdx < cars.Count)
+                        int delIdx;
+                        if (int.TryParse(Console.ReadLine(), out delIdx) && delIdx > 0 && delIdx <= cars.Count)
                         {
-                            cars.RemoveAt(delIdx);
+                            cars.RemoveAt(delIdx - 1);
                             Console.WriteLine("Авто видалено.");
                         }
                         else Console.WriteLine("Невірний номер!");

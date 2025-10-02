@@ -11,6 +11,10 @@ namespace CarApp
         private double price;
         private CarType type;
 
+        public string Color { get; set; } = "Black";
+        public int Age => DateTime.Now.Year - ManufactureDate.Year;
+        public string VIN { get; private set; }
+
         public string Brand
         {
             get { return brand; }
@@ -18,7 +22,7 @@ namespace CarApp
             {
                 if (value.Length < 2 || value.Length > 15 || !Regex.IsMatch(value, @"^[A-Za-z]+$"))
                     throw new ArgumentException("Марка повинна містити лише латинські літери (2-15).");
-                brand = value;
+                brand = char.ToUpper(value[0]) + value.Substring(1).ToLower();
             }
         }
 
@@ -50,7 +54,7 @@ namespace CarApp
             set
             {
                 if (value <= 0 || value > 200000)
-                    throw new ArgumentException("Ціна має бути в діапазоні (0; 200000].");
+                    throw new ArgumentOutOfRangeException(nameof(Price), "Ціна має бути в діапазоні (0; 200000].");
                 price = value;
             }
         }
@@ -60,7 +64,6 @@ namespace CarApp
             get { return type; }
             set { type = value; }
         }
-
         public Car(string brand, string model, DateTime manufactureDate, double price, CarType type)
         {
             Brand = brand;
@@ -68,17 +71,32 @@ namespace CarApp
             ManufactureDate = manufactureDate;
             Price = price;
             Type = type;
+            VIN = GenerateVIN(); 
+        }
+
+        private string GenerateVIN()
+        {
+            return Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
+        }
+        private string FormatInfo()
+        {
+            return $"Марка: {Brand}, Модель: {Model}, Дата: {ManufactureDate:dd.MM.yyyy}, " +
+                   $"Ціна: {Price} USD, Тип: {Type}, Колір: {Color}, Вік: {Age} років, VIN: {VIN}";
         }
 
         public void ShowInfo()
         {
-            Console.WriteLine($"Марка: {Brand}, Модель: {Model}, Дата: {ManufactureDate:dd.MM.yyyy}, " +
-                              $"Ціна: {Price} USD, Тип: {Type}");
+            Console.WriteLine(FormatInfo());
         }
 
         public void StartEngine()
         {
             Console.WriteLine($"Автомобіль {Brand} {Model} завівся!");
+        }
+
+        public void StopEngine()
+        {
+            Console.WriteLine($"Автомобіль {Brand} {Model} зупинився.");
         }
     }
 }
