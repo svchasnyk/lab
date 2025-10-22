@@ -64,6 +64,22 @@ namespace CarApp
             get { return type; }
             set { type = value; }
         }
+        public Car()
+        {
+            Brand = "Default";
+            Model = "ModelX";
+            ManufactureDate = new DateTime(2020, 1, 1);
+            Price = 10000;
+            Type = CarType.Sedan;
+            VIN = GenerateVIN();
+            Console.WriteLine("🔹 Спрацював конструктор без параметрів!");
+        }
+        public Car(string brand, string model) : this()
+        {
+            Brand = brand;
+            Model = model;
+            Console.WriteLine("🔹 Спрацював конструктор з 2 параметрами (brand, model)!");
+        }
         public Car(string brand, string model, DateTime manufactureDate, double price, CarType type)
         {
             Brand = brand;
@@ -71,13 +87,15 @@ namespace CarApp
             ManufactureDate = manufactureDate;
             Price = price;
             Type = type;
-            VIN = GenerateVIN(); 
+            VIN = GenerateVIN();
+            Console.WriteLine("🔹 Спрацював повний конструктор!");
         }
 
         private string GenerateVIN()
         {
             return Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
         }
+
         private string FormatInfo()
         {
             return $"Марка: {Brand}, Модель: {Model}, Дата: {ManufactureDate:dd.MM.yyyy}, " +
@@ -91,12 +109,24 @@ namespace CarApp
 
         public void StartEngine()
         {
-            Console.WriteLine($"Автомобіль {Brand} {Model} завівся!");
+            Console.WriteLine($"Двигун {Brand} {Model} завівся!");
+        }
+        public void StartEngine(string mode)
+        {
+            Console.WriteLine($"Двигун {Brand} {Model} завівся у режимі: {mode}!");
         }
 
         public void StopEngine()
         {
-            Console.WriteLine($"Автомобіль {Brand} {Model} зупинився.");
+            Console.WriteLine($"Двигун {Brand} {Model} заглох.");
+        }
+        public void StopEngine(bool withDelay)
+        {
+            if (withDelay)
+            {
+                Console.WriteLine($"Двигун {Brand} {Model} заглох після затримки...");
+            }
+            else StopEngine();
         }
     }
 }
