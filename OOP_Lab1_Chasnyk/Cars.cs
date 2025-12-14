@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CarApp
 {
     public class Car
     {
+        // 🔹 Статичні поля
+        private static int carCount = 0;
+        public static int CarCount => carCount;
+        public static string Category { get; set; } = "Легкові автомобілі";
+
         private string brand;
         private string model;
         private DateTime manufactureDate;
@@ -14,6 +20,26 @@ namespace CarApp
         public string Color { get; set; } = "Black";
         public int Age => DateTime.Now.Year - ManufactureDate.Year;
         public string VIN { get; private set; }
+
+        public static double AveragePrice(List<Car> cars)
+        {
+            if (cars == null || cars.Count == 0)
+                throw new ArgumentException("Список порожній!");
+            double sum = 0;
+            foreach (var c in cars) sum += c.Price;
+            return sum / cars.Count;
+        }
+
+        public static Car FindMostExpensive(List<Car> cars)
+        {
+            if (cars == null || cars.Count == 0)
+                throw new ArgumentException("Список порожній!");
+            Car max = cars[0];
+            foreach (var c in cars)
+                if (c.Price > max.Price) max = c;
+            return max;
+        }
+
 
         public string Brand
         {
@@ -64,6 +90,7 @@ namespace CarApp
             get { return type; }
             set { type = value; }
         }
+
         public Car()
         {
             Brand = "Default";
@@ -72,14 +99,17 @@ namespace CarApp
             Price = 10000;
             Type = CarType.Sedan;
             VIN = GenerateVIN();
+            carCount++; // 🔹 підрахунок об’єктів
             Console.WriteLine("🔹 Спрацював конструктор без параметрів!");
         }
+
         public Car(string brand, string model) : this()
         {
             Brand = brand;
             Model = model;
             Console.WriteLine("🔹 Спрацював конструктор з 2 параметрами (brand, model)!");
         }
+
         public Car(string brand, string model, DateTime manufactureDate, double price, CarType type)
         {
             Brand = brand;
@@ -88,6 +118,7 @@ namespace CarApp
             Price = price;
             Type = type;
             VIN = GenerateVIN();
+            carCount++;
             Console.WriteLine("🔹 Спрацював повний конструктор!");
         }
 
@@ -111,6 +142,7 @@ namespace CarApp
         {
             Console.WriteLine($"Двигун {Brand} {Model} завівся!");
         }
+
         public void StartEngine(string mode)
         {
             Console.WriteLine($"Двигун {Brand} {Model} завівся у режимі: {mode}!");
@@ -120,6 +152,7 @@ namespace CarApp
         {
             Console.WriteLine($"Двигун {Brand} {Model} заглох.");
         }
+
         public void StopEngine(bool withDelay)
         {
             if (withDelay)
@@ -127,6 +160,50 @@ namespace CarApp
                 Console.WriteLine($"Двигун {Brand} {Model} заглох після затримки...");
             }
             else StopEngine();
+        }
+
+        // 🔹 Parse
+        public static Car Parse(string input)
+        {
+            try
+            {
+                string[] parts = input.Split(';');
+                if (parts.Length != 5)
+                    throw new FormatException("Невірний формат. Приклад: Brand;Model;dd.MM.yyyy;10000;SUV");
+
+                string brand = parts[0];
+                string model = parts[1];
+                DateTime date = DateTime.Parse(parts[2]);
+                double price = double.Parse(parts[3]);
+                CarType type = (CarType)Enum.Parse(typeof(CarType), parts[4], true);
+
+                return new Car(brand, model, date, price, type);
+            }
+            catch (Exception ex)
+            {
+                throw new FormatException($"Помилка парсингу: {ex.Message}");
+            }
+        }
+
+        // 🔹 TryParse
+        public static bool TryParse(string input, out Car result)
+        {
+            try
+            {
+                result = Parse(input);
+                return true;
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        // 🔹 ToString()
+        public override string ToString()
+        {
+            return $"{Brand};{Model};{ManufactureDate:dd.MM.yyyy};{Price};{Type}";
         }
     }
 }

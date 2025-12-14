@@ -23,11 +23,12 @@ namespace CarApp
             do
             {
                 Console.WriteLine("\nМеню:");
-                Console.WriteLine("1 – Додати об’єкт (випадковим конструктором)");
+                Console.WriteLine("1 – Додати об’єкт");
                 Console.WriteLine("2 – Переглянути всі об’єкти");
                 Console.WriteLine("3 – Знайти об’єкт");
                 Console.WriteLine("4 – Продемонструвати поведінку (перевантажені методи)");
                 Console.WriteLine("5 – Видалити об’єкт");
+                Console.WriteLine("6 – Продемонструвати static-методи");
                 Console.WriteLine("0 – Вийти");
 
                 Console.Write("Ваш вибір: ");
@@ -46,56 +47,86 @@ namespace CarApp
                             break;
                         }
 
-                        try
+                        Console.Write("Хочете додати авто через рядок? (y/n): ");
+                        string ans = Console.ReadLine();
+                        if (ans?.ToLower() == "y")
                         {
-                            int constructorChoice = rand.Next(1, 4); 
-                            Car car;
-
-                            if (constructorChoice == 1)
+                            Console.Write("Введіть дані (Brand;Model;dd.MM.yyyy;Price;Type): ");
+                            string input = Console.ReadLine();
+                            if (Car.TryParse(input, out Car parsedCar))
                             {
-                                car = new Car(); 
+                                cars.Add(parsedCar);
+                                Console.WriteLine("✅ Авто додано через TryParse!");
+                                parsedCar.ShowInfo();
                             }
-                            else if (constructorChoice == 2)
-                            {
-                                Console.Write("Марка: ");
-                                string brand = Console.ReadLine();
-
-                                Console.Write("Модель: ");
-                                string model = Console.ReadLine();
-
-                                car = new Car(brand, model); 
-                            }
-                            else
-                            {
-                                Console.Write("Марка: ");
-                                string brand = Console.ReadLine();
-
-                                Console.Write("Модель: ");
-                                string model = Console.ReadLine();
-
-                                Console.Write("Дата випуску (дд.MM.рррр): ");
-                                DateTime date = DateTime.Parse(Console.ReadLine());
-
-                                Console.Write("Ціна: ");
-                                double price = double.Parse(Console.ReadLine());
-
-                                Console.Write("Тип авто (0-Sedan,1-SUV,2-Hatchback,3-Coupe,4-Pickup,5-Van): ");
-                                CarType type = (CarType)int.Parse(Console.ReadLine());
-
-                                car = new Car(brand, model, date, price, type); 
-                            }
-
-                            Console.Write("Колір (Enter для дефолтного): ");
-                            string color = Console.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(color))
-                                car.Color = color;
-
-                            cars.Add(car);
-                            Console.WriteLine("✅ Автомобіль додано!");
+                            else Console.WriteLine("❌ Невірний формат!");
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Console.WriteLine($"❌ Помилка: {ex.Message}");
+                            try
+                            {
+                                int constructorChoice = rand.Next(1, 4);
+                                Car car;
+
+                                if (constructorChoice == 1)
+                                {
+                                    car = new Car();
+                                }
+                                else if (constructorChoice == 2)
+                                {
+                                    Console.Write("Марка: ");
+                                    string brand = Console.ReadLine();
+
+                                    Console.Write("Модель: ");
+                                    string model = Console.ReadLine();
+
+                                    car = new Car(brand, model);
+                                }
+                                else
+                                {
+                                    Console.Write("Марка: ");
+                                    string brand = Console.ReadLine();
+
+                                    Console.Write("Модель: ");
+                                    string model = Console.ReadLine();
+
+                                    Console.Write("Дата випуску (дд.MM.рррр): ");
+                                    if (!DateTime.TryParse(Console.ReadLine(), out DateTime date))
+                                    {
+                                        Console.WriteLine("❌ Невірний формат дати!");
+                                        break;
+                                    }
+
+                                    Console.Write("Ціна: ");
+                                    if (!double.TryParse(Console.ReadLine(), out double price))
+                                    {
+                                        Console.WriteLine("❌ Невірний формат ціни!");
+                                        break;
+                                    }
+
+                                    Console.Write("Тип авто (0-Sedan,1-SUV,2-Hatchback,3-Coupe,4-Pickup,5-Van): ");
+                                    if (!int.TryParse(Console.ReadLine(), out int typeInt) || typeInt < 0 || typeInt > 5)
+                                    {
+                                        Console.WriteLine("❌ Невірний тип!");
+                                        break;
+                                    }
+                                    CarType type = (CarType)typeInt;
+
+                                    car = new Car(brand, model, date, price, type);
+                                }
+
+                                Console.Write("Колір (Enter для дефолтного): ");
+                                string color = Console.ReadLine();
+                                if (!string.IsNullOrWhiteSpace(color))
+                                    car.Color = color;
+
+                                cars.Add(car);
+                                Console.WriteLine("✅ Автомобіль додано!");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"❌ Помилка: {ex.Message}");
+                            }
                         }
                         break;
 
@@ -112,63 +143,64 @@ namespace CarApp
                                 c.ShowInfo();
                                 i++;
                             }
+                            Console.WriteLine($"🔸 Всього авто: {Car.CarCount}, Категорія: {Car.Category}");
                         }
                         break;
 
                     case 3:
-                        Console.Write("Введіть марку для пошуку: ");
-                        string search = Console.ReadLine();
-                        var found = cars.FindAll(c => c.Brand.Equals(search, StringComparison.OrdinalIgnoreCase));
-
-                        if (found.Count == 0)
-                            Console.WriteLine("Не знайдено!");
-                        else
-                        {
-                            Console.WriteLine($"Знайдено {found.Count} авто(ів):");
-                            foreach (var c in found)
-                                c.ShowInfo();
-                        }
+                        Console.Write("Введіть VIN або марку для пошуку: ");
+                        string query = Console.ReadLine();
+                        var found = cars.Find(c => c.VIN.Equals(query, StringComparison.OrdinalIgnoreCase)
+                                                || c.Brand.Equals(query, StringComparison.OrdinalIgnoreCase));
+                        if (found != null) found.ShowInfo();
+                        else Console.WriteLine("❌ Авто не знайдено!");
                         break;
 
                     case 4:
-                        if (cars.Count == 0)
+                        if (cars.Count > 0)
                         {
-                            Console.WriteLine("Список порожній!");
-                            break;
+                            var car = cars[0];
+                            car.StartEngine();
+                            car.StartEngine("Sport");
+                            car.StopEngine();
+                            car.StopEngine(true);
                         }
-
-                        Console.Write("Введіть номер авто для демонстрації: ");
-                        int idx;
-                        if (int.TryParse(Console.ReadLine(), out idx) && idx > 0 && idx <= cars.Count)
-                        {
-                            var car = cars[idx - 1];
-                            Console.WriteLine("\n=== Демонстрація поведінки ===");
-                            car.StartEngine();          
-                            car.StartEngine("Спорт");     
-                            car.StopEngine(true);           
-                        }
-                        else
-                        {
-                            Console.WriteLine("Невірний номер!");
-                        }
+                        else Console.WriteLine("Список порожній!");
                         break;
 
                     case 5:
+                        Console.Write("Введіть номер авто для видалення: ");
+                        if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= cars.Count)
+                        {
+                            cars.RemoveAt(index - 1);
+                            Console.WriteLine("✅ Авто видалено!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("❌ Невірний номер!");
+                        }
+                        break;
+
+                    case 6:
                         if (cars.Count == 0)
                         {
                             Console.WriteLine("Список порожній!");
                             break;
                         }
 
-                        Console.Write("Введіть номер авто для видалення: ");
-                        int delIdx;
-                        if (int.TryParse(Console.ReadLine(), out delIdx) && delIdx > 0 && delIdx <= cars.Count)
+                        try
                         {
-                            cars.RemoveAt(delIdx - 1);
-                            Console.WriteLine("Авто видалено.");
+                            double avg = Car.AveragePrice(cars);
+                            Console.WriteLine($"📊 Середня ціна: {avg} USD");
+
+                            Car expensive = Car.FindMostExpensive(cars);
+                            Console.WriteLine("💎 Найдорожче авто:");
+                            expensive.ShowInfo();
                         }
-                        else
-                            Console.WriteLine("Невірний номер!");
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"❌ Помилка: {ex.Message}");
+                        }
                         break;
 
                     case 0:
