@@ -49,6 +49,7 @@ namespace CarApp.Tests
         [TestMethod]
         [DataRow("BMW", "X5", "01.01.2020", 50000, CarType.SUV)]
         [DataRow("Audi", "A4", "15.03.2019", 30000, CarType.Sedan)]
+        
         public void FullConstructor_ShouldSetProperties(string brand, string model, string date, double price, CarType type)
         {
             DateTime manufactureDate = DateTime.Parse(date);
@@ -74,6 +75,7 @@ namespace CarApp.Tests
         }
 
         [TestMethod]
+        
         public void FindMostExpensive_ShouldReturnCarWithMaxPrice()
         {
             var cars = new List<Car>
@@ -85,5 +87,52 @@ namespace CarApp.Tests
             Car expensive = Car.FindMostExpensive(cars);
             Assert.AreEqual("BMW", expensive.Brand);
         }
+
+        [TestMethod]
+        public void TryParse_InvalidString_ShouldReturnFalse()
+        {
+            string input = "WrongData";
+            bool result = Car.TryParse(input, out Car car);
+            Assert.IsFalse(result);
+            Assert.IsNull(car);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Brand_InvalidCharacters_ShouldThrowException()
+        {
+            var car = new Car("B1", "Test", DateTime.Now.AddYears(-1), 10000, CarType.Sedan);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Price_InvalidValue_ShouldThrowException()
+        {
+            var car = new Car("BMW", "X5", DateTime.Now.AddYears(-1), -500, CarType.SUV);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ManufactureDate_InvalidValue_ShouldThrowException()
+        {
+            var car = new Car("Audi", "A4", new DateTime(1950, 1, 1), 20000, CarType.Sedan);
+        }
+
+        [TestMethod]
+        public void ToString_ShouldReturnCorrectFormat()
+        {
+            var car = new Car("Honda", "Civic", new DateTime(2018, 5, 20), 18000, CarType.Sedan);
+            string expected = "Honda;Civic;20.05.2018;18000;Sedan";
+            Assert.AreEqual(expected, car.ToString());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void AveragePrice_EmptyList_ShouldThrowException()
+        {
+            var cars = new List<Car>();
+            Car.AveragePrice(cars);
+        }
+
     }
 }

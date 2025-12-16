@@ -6,7 +6,6 @@ namespace CarApp
 {
     public class Car
     {
-        // 🔹 Статичні поля
         private static int carCount = 0;
         public static int CarCount => carCount;
         public static string Category { get; set; } = "Легкові автомобілі";
@@ -39,7 +38,6 @@ namespace CarApp
                 if (c.Price > max.Price) max = c;
             return max;
         }
-
 
         public string Brand
         {
@@ -99,15 +97,13 @@ namespace CarApp
             Price = 10000;
             Type = CarType.Sedan;
             VIN = GenerateVIN();
-            carCount++; // 🔹 підрахунок об’єктів
-            Console.WriteLine("🔹 Спрацював конструктор без параметрів!");
+            carCount++;
         }
 
         public Car(string brand, string model) : this()
         {
             Brand = brand;
             Model = model;
-            Console.WriteLine("🔹 Спрацював конструктор з 2 параметрами (brand, model)!");
         }
 
         public Car(string brand, string model, DateTime manufactureDate, double price, CarType type)
@@ -119,7 +115,6 @@ namespace CarApp
             Type = type;
             VIN = GenerateVIN();
             carCount++;
-            Console.WriteLine("🔹 Спрацював повний конструктор!");
         }
 
         private string GenerateVIN()
@@ -133,36 +128,20 @@ namespace CarApp
                    $"Ціна: {Price} USD, Тип: {Type}, Колір: {Color}, Вік: {Age} років, VIN: {VIN}";
         }
 
-        public void ShowInfo()
-        {
-            Console.WriteLine(FormatInfo());
-        }
+        public string GetInfo() => FormatInfo();
 
-        public void StartEngine()
-        {
-            Console.WriteLine($"Двигун {Brand} {Model} завівся!");
-        }
+        public void ShowInfo() => Console.WriteLine(GetInfo());
 
-        public void StartEngine(string mode)
-        {
-            Console.WriteLine($"Двигун {Brand} {Model} завівся у режимі: {mode}!");
-        }
+        public string StartEngineMessage() => $"Двигун {Brand} {Model} завівся!";
+        public string StartEngineMessage(string mode) => $"Двигун {Brand} {Model} завівся у режимі: {mode}!";
+        public string StopEngineMessage() => $"Двигун {Brand} {Model} заглох.";
+        public string StopEngineMessage(bool withDelay) =>
+            withDelay ? $"Двигун {Brand} {Model} заглох після затримки..." : StopEngineMessage();
+        public void StartEngine() => Console.WriteLine(StartEngineMessage());
+        public void StartEngine(string mode) => Console.WriteLine(StartEngineMessage(mode));
+        public void StopEngine() => Console.WriteLine(StopEngineMessage());
+        public void StopEngine(bool withDelay) => Console.WriteLine(StopEngineMessage(withDelay));
 
-        public void StopEngine()
-        {
-            Console.WriteLine($"Двигун {Brand} {Model} заглох.");
-        }
-
-        public void StopEngine(bool withDelay)
-        {
-            if (withDelay)
-            {
-                Console.WriteLine($"Двигун {Brand} {Model} заглох після затримки...");
-            }
-            else StopEngine();
-        }
-
-        // 🔹 Parse
         public static Car Parse(string input)
         {
             try
@@ -185,7 +164,6 @@ namespace CarApp
             }
         }
 
-        // 🔹 TryParse
         public static bool TryParse(string input, out Car result)
         {
             try
@@ -200,7 +178,6 @@ namespace CarApp
             }
         }
 
-        // 🔹 ToString()
         public override string ToString()
         {
             return $"{Brand};{Model};{ManufactureDate:dd.MM.yyyy};{Price};{Type}";
