@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 namespace CarApp
 {
@@ -16,29 +19,16 @@ namespace CarApp
         private double price;
         private CarType type;
 
+        [JsonPropertyName("color")]
         public string Color { get; set; } = "Black";
+
+        [JsonIgnore]
         public int Age => DateTime.Now.Year - ManufactureDate.Year;
+
+        [JsonIgnore]
         public string VIN { get; private set; }
 
-        public static double AveragePrice(List<Car> cars)
-        {
-            if (cars == null || cars.Count == 0)
-                throw new ArgumentException("Список порожній!");
-            double sum = 0;
-            foreach (var c in cars) sum += c.Price;
-            return sum / cars.Count;
-        }
-
-        public static Car FindMostExpensive(List<Car> cars)
-        {
-            if (cars == null || cars.Count == 0)
-                throw new ArgumentException("Список порожній!");
-            Car max = cars[0];
-            foreach (var c in cars)
-                if (c.Price > max.Price) max = c;
-            return max;
-        }
-
+        [JsonPropertyName("brand")]
         public string Brand
         {
             get { return brand; }
@@ -46,10 +36,11 @@ namespace CarApp
             {
                 if (value.Length < 2 || value.Length > 15 || !Regex.IsMatch(value, @"^[A-Za-z]+$"))
                     throw new ArgumentException("Марка повинна містити лише латинські літери (2-15).");
-                brand = char.ToUpper(value[0]) + value.Substring(1).ToLower();
+                brand = char.ToUpper(value[0]) + value.Substring(1);
             }
         }
 
+        [JsonPropertyName("model")]
         public string Model
         {
             get { return model; }
@@ -61,6 +52,7 @@ namespace CarApp
             }
         }
 
+        [JsonPropertyName("date")]
         public DateTime ManufactureDate
         {
             get { return manufactureDate; }
@@ -72,6 +64,7 @@ namespace CarApp
             }
         }
 
+        [JsonPropertyName("price")]
         public double Price
         {
             get { return price; }
@@ -83,6 +76,7 @@ namespace CarApp
             }
         }
 
+        [JsonPropertyName("type")]
         public CarType Type
         {
             get { return type; }
@@ -141,6 +135,25 @@ namespace CarApp
         public void StartEngine(string mode) => Console.WriteLine(StartEngineMessage(mode));
         public void StopEngine() => Console.WriteLine(StopEngineMessage());
         public void StopEngine(bool withDelay) => Console.WriteLine(StopEngineMessage(withDelay));
+
+        public static double AveragePrice(List<Car> cars)
+        {
+            if (cars == null || cars.Count == 0)
+                throw new ArgumentException("Список порожній!");
+            double sum = 0;
+            foreach (var c in cars) sum += c.Price;
+            return sum / cars.Count;
+        }
+
+        public static Car FindMostExpensive(List<Car> cars)
+        {
+            if (cars == null || cars.Count == 0)
+                throw new ArgumentException("Список порожній!");
+            Car max = cars[0];
+            foreach (var c in cars)
+                if (c.Price > max.Price) max = c;
+            return max;
+        }
 
         public static Car Parse(string input)
         {

@@ -29,6 +29,9 @@ namespace CarApp
                 Console.WriteLine("4 – Продемонструвати поведінку (перевантажені методи)");
                 Console.WriteLine("5 – Видалити об’єкт");
                 Console.WriteLine("6 – Продемонструвати static-методи");
+                Console.WriteLine("7 – Зберегти колекцію об’єктів у файлі");
+                Console.WriteLine("8 – Зчитати колекцію об’єктів з файлу");
+                Console.WriteLine("9 – Очистити колекцію");
                 Console.WriteLine("0 – Вийти");
 
                 Console.Write("Ваш вибір: ");
@@ -201,6 +204,27 @@ namespace CarApp
                         {
                             Console.WriteLine($"❌ Помилка: {ex.Message}");
                         }
+                        break;
+
+                    case 7:
+                        Console.WriteLine("1 – зберегти у CSV");
+                        Console.WriteLine("2 – зберегти у JSON");
+                        string saveChoice = Console.ReadLine();
+                        if (saveChoice == "1") CarSerializer.SaveToCsv(cars, "cars.csv");
+                        else if (saveChoice == "2") CarJsonSerializer.SaveToJson(cars, "cars.json");
+                        break;
+
+                    case 8:
+                        Console.WriteLine("1 – зчитати з CSV");
+                        Console.WriteLine("2 – зчитати з JSON");
+                        string loadChoice = Console.ReadLine();
+                        if (loadChoice == "1") cars.AddRange(CarSerializer.LoadFromCsv("cars.csv"));
+                        else if (loadChoice == "2") cars.AddRange(CarJsonSerializer.LoadFromJson("cars.json"));
+                        break;
+
+                    case 9:
+                        cars.Clear();
+                        Console.WriteLine("✅ Колекцію очищено!");
                         break;
 
                     case 0:

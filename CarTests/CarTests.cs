@@ -134,5 +134,26 @@ namespace CarApp.Tests
             Car.AveragePrice(cars);
         }
 
+        [TestMethod]
+        public void TestCsvSerialization()
+        {
+            var cars = new List<Car> { new Car("BMW", "X5", DateTime.Now, 50000, CarType.SUV) };
+            CarSerializer.SaveToCsv(cars, "test.csv");
+            var loaded = CarSerializer.LoadFromCsv("test.csv");
+            Assert.AreEqual(1, loaded.Count);
+            Assert.AreEqual("BMW", loaded[0].Brand);
+        }
+
+        [TestMethod]
+        public void TestJsonSerialization()
+        {
+            var cars = new List<Car> { new Car("Audi", "A4", DateTime.Now, 30000, CarType.Sedan) };
+            CarJsonSerializer.SaveToJson(cars, "test.json");
+            var loaded = CarJsonSerializer.LoadFromJson("test.json");
+            Assert.AreEqual(1, loaded.Count);
+            Assert.AreEqual("Audi", loaded[0].Brand);
+        }
+
+
     }
 }
